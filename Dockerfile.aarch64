@@ -28,9 +28,11 @@ RUN cd / && mkdir -p /ss-tproxy &&\
 	install -c /ss-tproxy/ss-tproxy.conf /ss-tproxy/gfwlist.* /ss-tproxy/chnroute.* /etc/ss-tproxy && \
 	rm -rf /ss-tproxy
 
-RUN mkdir -p /koolproxy && cd /koolproxy && \
-	wget https://koolproxy.com/downloads/arm && \
-	mv arm koolproxy && \
+COPY koolproxy/arm /koolproxy
+#RUN mkdir -p /koolproxy && cd /koolproxy && \
+	#wget https://koolproxy.com/downloads/arm && \
+    #mv arm koolproxy && \
+RUN cd /koolproxy && \
 	chmod +x koolproxy && \
 	chown -R daemon:daemon /koolproxy
 
