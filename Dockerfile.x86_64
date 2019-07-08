@@ -16,8 +16,10 @@ RUN mkdir -p /v2ray && \
 	chmod +x v2ray v2ctl && mkdir -p /sample_config
 
 RUN cd / && mkdir -p /ss-tproxy &&\
-	wget https://github.com/zfl9/ss-tproxy/archive/v3-master.zip && \
-	unzip -jd ss-tproxy v3-master.zip && rm v3-master.zip && \
+    release_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/zfl9/ss-tproxy/releases/latest) && \
+    tag="${release_url##*/}" && \
+	wget -O ss-tproxy.zip "https://github.com/zfl9/ss-tproxy/archive/$tag.zip" && \
+	unzip -jd ss-tproxy ss-tproxy.zip && rm ss-tproxy.zip && \
 	sed -i 's/while umount \/etc\/resolv.conf; do :; done/while mount|grep overlay|grep \/etc\/resolv.conf; do umount \/etc\/resolv.conf; done/g' /ss-tproxy/ss-tproxy && \
 	sed -i 's/60053/53/g' /ss-tproxy/ss-tproxy && \
 	sed -i '/no-resolv/i\addn-hosts=$dnsmasq_addn_hosts' /ss-tproxy/ss-tproxy && \
