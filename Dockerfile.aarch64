@@ -10,7 +10,10 @@ RUN	sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 RUN mkdir -p /v2ray && \
 	cd /v2ray && \
-	wget https://raw.githubusercontent.com/v2ray/dist/master/v2ray-linux-arm64.zip && \
+	tag_url="https://api.github.com/repos/v2ray/v2ray-core/releases/latest" && \
+	new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4` && \
+	new_ver="v${new_ver##*v}" && \
+	wget https://github.com/v2ray/v2ray-core/releases/download/${new_ver}/v2ray-linux-arm64.zip && \
 	unzip v2ray-linux-arm64.zip && \
 	rm config.json v2ray-linux-arm64.zip && \
 	chmod +x v2ray v2ctl && mkdir -p /sample_config
