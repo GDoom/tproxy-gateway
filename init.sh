@@ -11,8 +11,8 @@ fi
 
 source "$CONFIG_PATH"/ss-tproxy.conf
 [ ! -f "$file_gfwlist_txt"  ] && touch $file_gfwlist_txt
-[ ! -f "$file_chnroute_txt"  ] && touch $file_chnroute_txt
 [ ! -f "$file_chnroute_set"  ] && touch $file_chnroute_set
+[ ! -f "$file_chnroute6_set"  ] && touch $file_chnroute6_set
 [ ! -f "$dnsmasq_addn_hosts"  ] && touch $dnsmasq_addn_hosts
 
 if [ "$mode" = chnroute ]; then
@@ -28,9 +28,9 @@ if [ "$mode" = chnonly ]; then
   /usr/local/bin/ss-tproxy update-chnonly
 fi
 echo "`date +%Y-%m-%d\ %T` flushing iptables.."
-/usr/local/bin/ss-tproxy flush-iptables
-echo "`date +%Y-%m-%d\ %T` flushing gfwlist.."
-/usr/local/bin/ss-tproxy flush-gfwlist
+/usr/local/bin/ss-tproxy flush-postrule
+echo "`date +%Y-%m-%d\ %T` deleting gfwlist.."
+/usr/local/bin/ss-tproxy delete-gfwlist
 echo "`date +%Y-%m-%d\ %T` flushing dnscache.."
 /usr/local/bin/ss-tproxy flush-dnscache
 kill -9 $(pidof crond) &>/dev/null
