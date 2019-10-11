@@ -317,20 +317,65 @@ docker restart tproxy-gateway
 # 关于宿主机出口
 由于docker网络采用`macvlan`的`bridge`模式，宿主机虽然与容器在同一网段，但是相互之间是无法通信的，所以无法通过`tproxy-gateway`透明代理。
 
-解决方案1是让宿主机直接走主路由，不经过代理网关：
+## 解决方案1
+
+让宿主机直接走主路由，不经过代理网关：
+
 ```bash
 ip route add default via 10.1.1.1 dev eth0 # 设置静态路由
 echo "nameserver 10.1.1.1" > /etc/resolv.conf # 设置静态dns服务器
 ```
-解决方案2是利用多个macvlan接口之间是互通的原理，新建一个macvlan虚拟接口：
-```bash
-ip link add link eth0 mac0 type macvlan mode bridge # 在eth0接口下添加一个macvlan虚拟接口
-ip addr add 10.1.1.250/24 brd + dev mac0 # 为mac0 分配ip地址
-ip link set mac0 up
-ip route del default #删除默认路由
-ip route add default via 10.1.1.254 dev mac0 # 设置静态路由
-echo "nameserver 10.1.1.254" > /etc/resolv.conf # 设置静态dns服务器
-```
+
+## 解决方案2
+
+利用多个macvlan接口之间是互通的原理，新建一个macvlan虚拟接口：
+
+* 临时配置网络（重启后失效）
+
+   ```bash
+   ip link add link eth0 mac0 type macvlan mode bridge # 在eth0接口下添加一个macvlan虚拟接口
+   ip addr add 10.1.1.250/24 brd + dev mac0 # 为mac0 分配ip地址
+   ip link set mac0 up
+   ip route del default #删除默认路由
+   ip route add default via 10.1.1.254 dev mac0 # 设置静态路由
+   echo "nameserver 10.1.1.254" > /etc/resolv.conf # 设置静态dns服务器
+   ```
+
+* 永久配置网络（重启也能生效）
+
+   宿主机（Debian）修改网络配置：`vi /etc/network/interface`
+
+   将：
+
+   ```
+   auto eth0
+   iface eth0 inet static
+   address 10.1.1.250
+   broadcast 10.1.1.255
+   netmask 255.255.255.0
+   gateway 10.1.1.254
+   dns-nameservers 10.1.1.254
+   ```
+
+   修改为：
+
+   ```
+   auto eth0
+   iface eth0 inet manual
+
+   auto macvlan
+   iface macvlan inet static
+   address 10.1.1.250
+   netmask 255.255.255.0
+   gateway 10.1.1.254
+   dns-nameservers 10.1.1.254
+   	pre-up ip link add macvlan link eth0 type macvlan mode bridge
+   	post-down ip link del macvlan link eth0 type macvlan mode bridge
+   ```
+
+   修改完后重启网络  `systemctl restart networking` 或者重启系统查看效果。
+
+
 
 # Docker Hub
 [https://hub.docker.com/r/lisaac/tproxy-gateway](https://hub.docker.com/r/lisaac/tproxy-gateway)
