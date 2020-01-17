@@ -58,10 +58,9 @@ RUN set -eux; \
         new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
         new_ver="${new_ver##*v}"; \
         wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
-        tar xvf trojan-${new_ver}-linux-amd64.tar.xz; \
-        mv trojan/trojan ./; \
-        rm -rf trojan/; \
-        chmod +x ./trojan 
+        tar -xvf trojan-${new_ver}-linux-amd64.tar.xz --wildcards --no-anchored --strip=1 trojan*/trojan; \
+        chmod +x ./trojan; \
+        rm trojan-${new_ver}-linux-amd64.tar.xz
 
 # place dns2tcp and ipt2socks
 COPY --from=fy1128/dns2tcp-ipt2socks-builder:latest /usr/local/bin/dns2tcp /usr/local/bin/ipt2socks /usr/local/bin/
