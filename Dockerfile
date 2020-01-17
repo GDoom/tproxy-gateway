@@ -50,17 +50,23 @@ RUN set -eux; \
 #	chown -R daemon:daemon /koolproxy
 
 # place trojan
-RUN set -eux; \
-	\
-	mkdir -p /trojan; \
-        cd /trojan; \
-        tag_url="https://api.github.com/repos/trojan-gfw/trojan/releases/latest"; \
-        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
-        new_ver="${new_ver##*v}"; \
-        wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
-        tar -xvf trojan-${new_ver}-linux-amd64.tar.xz --wildcards --no-anchored --strip=1 trojan*/trojan; \
-        chmod +x ./trojan; \
-        rm trojan-${new_ver}-linux-amd64.tar.xz
+RUN mkdir /trojan
+COPY --from=fy1128/trojan-builder:latest /usr/src/trojan/build/trojan /trojan/trojan
+#RUN set -eux; \
+#    \
+#    mkdir -p /trojan; \
+#        cd /trojan; \
+#        tag_url="https://api.github.com/repos/trojan-gfw/trojan/releases/latest"; \
+#        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
+#        new_ver="${new_ver##*v}"; \
+#        wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
+#        #tar -xvf trojan-${new_ver}-linux-amd64.tar.xz --wildcards --no-anchored --strip=1 trojan*/trojan; \
+#        tar -xvf trojan-${new_ver}-linux-amd64.tar.xz; \
+#        rm trojan-${new_ver}-linux-amd64.tar.xz; \
+#        mv trojan* trojan-archive; \
+#        mv trojan-archive/trojan ./; \
+#        rm -rf trojan-archive; \
+#        chmod +x ./trojan
 
 # place dns2tcp and ipt2socks
 COPY --from=fy1128/dns2tcp-ipt2socks-builder:latest /usr/local/bin/dns2tcp /usr/local/bin/ipt2socks /usr/local/bin/
