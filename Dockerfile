@@ -23,7 +23,6 @@ RUN set -eux; \
 	rm config.json v2ray-linux-64.zip; \
 	chmod +x v2ray v2ctl && mkdir -p /sample_config
 
-
 RUN set -eux; \
 	\
 	cd /; \
