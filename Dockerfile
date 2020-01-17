@@ -56,7 +56,7 @@ RUN set -eux; \
         cd /trojan; \
         tag_url="https://api.github.com/repos/trojan-gfw/trojan/releases/latest"; \
         new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
-        new_ver="v${new_ver##*v}"; \
+        new_ver="${new_ver##*v}"; \
         wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
         tar xvf trojan-${new_ver}-linux-amd64.tar.xz; \
         mv trojan/trojan ./; \
