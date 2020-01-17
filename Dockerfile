@@ -40,14 +40,14 @@ RUN set -eux; \
 	install -c /ss-tproxy/ss-tproxy.conf /ss-tproxy/gfwlist.* /ss-tproxy/ignlist.* /ss-tproxy/chnroute.* /etc/ss-tproxy; \
 	rm -rf /ss-tproxy
 
-RUN set -eux; \
-	\
-	mkdir -p /koolproxy; \
-	cd /koolproxy; \
-	#wget https://koolproxy.com/downloads/x86_64; \
-	#mv x86_64 koolproxy; \
-	#chmod +x koolproxy; \
-	#chown -R daemon:daemon /koolproxy
+#RUN set -eux; \
+#	\
+#	mkdir -p /koolproxy; \
+#	cd /koolproxy; \
+#	wget https://koolproxy.com/downloads/x86_64; \
+#	mv x86_64 koolproxy; \
+#	chmod +x koolproxy; \
+#	chown -R daemon:daemon /koolproxy
 
 # place trojan
 RUN set -eux; \
