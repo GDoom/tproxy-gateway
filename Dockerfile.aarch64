@@ -67,7 +67,6 @@ RUN set -eux; \
 	chmod +x /trojan/trojan /usr/local/bin/dns2tcp /usr/local/bin/ipt2socks /init.sh; \
 	install -c /tmp/chinadns /usr/local/bin; \
 	rm -rf /tmp/*; \
-	rm -rf /opt/*; \
-	sed -i 's/mirrors.aliyun.com/dl-cdn.alpinelinux.org/g' /etc/apk/repositories;
+	rm -rf /opt/*;
 
 CMD ["/init.sh","daemon"]
