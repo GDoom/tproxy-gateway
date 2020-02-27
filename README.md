@@ -361,7 +361,7 @@ echo "nameserver 10.1.1.1" > /etc/resolv.conf # 设置静态dns服务器
 
    ```
    auto eth0
-   iface eth0 inet manual
+   iface eth0 inet dhcp
 
    auto macvlan
    iface macvlan inet static
@@ -371,6 +371,27 @@ echo "nameserver 10.1.1.1" > /etc/resolv.conf # 设置静态dns服务器
    dns-nameservers 10.1.1.254
    	pre-up ip link add macvlan link eth0 type macvlan mode bridge
    	post-down ip link del macvlan link eth0 type macvlan mode bridge
+   ```
+
+   或
+
+   ```
+   auto eth0
+   iface eth0 inet dhcp
+   # manual 会覆写 mac30 的部分设置？
+   #iface eth0 inet manual
+
+   auto mac30
+   iface mac30 inet manual
+     pre-up ip link add link enp3s0 mac30 type macvlan mode bridge
+     pre-up ip addr add 10.1.1.250/24 brd + dev mac30
+     # eth0 为 manual 时，给 mac30 加上延时
+     #pre-up sleep 10
+     up ip link set mac30 up
+     post-up ip route del default
+     post-up ip route del 10.1.1.0/24 dev enp3s0
+     post-up ip route add default via 10.1.1.1 dev mac30
+     post-down ip link del dev mac30
    ```
 
    修改完后重启网络  `systemctl restart networking` 或者重启系统查看效果。
