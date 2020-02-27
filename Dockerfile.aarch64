@@ -2,6 +2,8 @@ FROM arm64v8/alpine:edge
 
 ENV TZ=Asia/Shanghai
 
+COPY qemu-aarch64-static /usr/bin
+
 RUN	set -eux; \
 	\
 	sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
@@ -67,6 +69,7 @@ RUN set -eux; \
 	chmod +x /trojan/trojan /usr/local/bin/dns2tcp /usr/local/bin/ipt2socks /init.sh; \
 	install -c /tmp/chinadns /usr/local/bin; \
 	rm -rf /tmp/*; \
-	rm -rf /opt/*;
+	rm -rf /opt/*; \
+	rm /usr/bin/qemu-aarch64-static
 
 CMD ["/init.sh","daemon"]

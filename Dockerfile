@@ -23,7 +23,6 @@ RUN set -eux; \
 	rm config.json v2ray-linux-64.zip; \
 	chmod +x v2ray v2ctl && mkdir -p /sample_config
 
-
 RUN set -eux; \
 	\
 	cd /; \
@@ -41,28 +40,33 @@ RUN set -eux; \
 	install -c /ss-tproxy/ss-tproxy.conf /ss-tproxy/gfwlist.* /ss-tproxy/ignlist.* /ss-tproxy/chnroute.* /etc/ss-tproxy; \
 	rm -rf /ss-tproxy
 
-RUN set -eux; \
-	\
-	mkdir -p /koolproxy; \
-	cd /koolproxy; \
-	#wget https://koolproxy.com/downloads/x86_64; \
-	#mv x86_64 koolproxy; \
-	#chmod +x koolproxy; \
-	#chown -R daemon:daemon /koolproxy
+#RUN set -eux; \
+#	\
+#	mkdir -p /koolproxy; \
+#	cd /koolproxy; \
+#	wget https://koolproxy.com/downloads/x86_64; \
+#	mv x86_64 koolproxy; \
+#	chmod +x koolproxy; \
+#	chown -R daemon:daemon /koolproxy
 
 # place trojan
-RUN set -eux; \
-	\
-	mkdir -p /trojan; \
-        cd /trojan; \
-        tag_url="https://api.github.com/repos/trojan-gfw/trojan/releases/latest"; \
-        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
-        new_ver="v${new_ver##*v}"; \
-        wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
-        tar xvf trojan-${new_ver}-linux-amd64.tar.xz; \
-        mv trojan/trojan ./; \
-        rm -rf trojan/; \
-        chmod +x ./trojan 
+RUN mkdir /trojan
+COPY --from=fy1128/trojan-builder:latest /usr/src/trojan/build/trojan /trojan/trojan
+#RUN set -eux; \
+#    \
+#    mkdir -p /trojan; \
+#        cd /trojan; \
+#        tag_url="https://api.github.com/repos/trojan-gfw/trojan/releases/latest"; \
+#        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
+#        new_ver="${new_ver##*v}"; \
+#        wget https://github.com/trojan-gfw/trojan/releases/download/v${new_ver}/trojan-${new_ver}-linux-amd64.tar.xz; \
+#        #tar -xvf trojan-${new_ver}-linux-amd64.tar.xz --wildcards --no-anchored --strip=1 trojan*/trojan; \
+#        tar -xvf trojan-${new_ver}-linux-amd64.tar.xz; \
+#        rm trojan-${new_ver}-linux-amd64.tar.xz; \
+#        mv trojan* trojan-archive; \
+#        mv trojan-archive/trojan ./; \
+#        rm -rf trojan-archive; \
+#        chmod +x ./trojan
 
 # place dns2tcp and ipt2socks
 COPY --from=fy1128/dns2tcp-ipt2socks-builder:latest /usr/local/bin/dns2tcp /usr/local/bin/ipt2socks /usr/local/bin/
