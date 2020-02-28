@@ -343,58 +343,70 @@ echo "nameserver 10.1.1.1" > /etc/resolv.conf # 设置静态dns服务器
 
 * 永久配置网络（重启也能生效）
 
-   宿主机（Debian）修改网络配置：`vi /etc/network/interface`
+   * 使用 nmcli (推荐）
 
-   将：
+      `nmcli connection add type macvlan dev eth0 mode bridge ifname mac30 ipv4.route-metric 10 ipv6.route-metric 10 autoconnect yes save yes`
 
-   ```
-   auto eth0
-   iface eth0 inet static
-   address 10.1.1.250
-   broadcast 10.1.1.255
-   netmask 255.255.255.0
-   gateway 10.1.1.254
-   dns-nameservers 10.1.1.254
-   ```
+      注意：需使用更低的 `metric` 来提高 `default` 路由的优先级
 
-   修改为：
+   * 宿主机（Debian）修改网络配置：`vi /etc/network/interface`
 
-   ```
-   auto eth0
-   iface eth0 inet dhcp
+      以下配置不支持网线热插拔，热插拔后需手动重启网络。可借用 `ifplugd` 解决（操作不详）
 
-   auto macvlan
-   iface macvlan inet static
-   address 10.1.1.250
-   netmask 255.255.255.0
-   gateway 10.1.1.254
-   dns-nameservers 10.1.1.254
-   	pre-up ip link add macvlan link eth0 type macvlan mode bridge
-   	post-down ip link del macvlan link eth0 type macvlan mode bridge
-   ```
-
-   或
-
-   ```
-   auto eth0
-   iface eth0 inet dhcp
-   # manual 会覆写 mac30 的部分设置？
-   #iface eth0 inet manual
-
-   auto mac30
-   iface mac30 inet manual
-     pre-up ip link add link enp3s0 mac30 type macvlan mode bridge
-     pre-up ip addr add 10.1.1.250/24 brd + dev mac30
-     # eth0 为 manual 时，给 mac30 加上延时
-     #pre-up sleep 10
-     up ip link set mac30 up
-     post-up ip route del default
-     post-up ip route del 10.1.1.0/24 dev enp3s0
-     post-up ip route add default via 10.1.1.1 dev mac30
-     post-down ip link del dev mac30
-   ```
-
-   修改完后重启网络  `systemctl restart networking` 或者重启系统查看效果。
+      将：
+   
+      ```
+      auto eth0
+      iface eth0 inet static
+      address 10.1.1.250
+      broadcast 10.1.1.255
+      netmask 255.255.255.0
+      gateway 10.1.1.254
+      dns-nameservers 10.1.1.254
+      ```
+   
+      修改为：
+   
+      ```
+      auto eth0
+      iface eth0 inet manual
+   
+      auto macvlan
+      iface macvlan inet static
+      metric 10
+      address 10.1.1.250
+      netmask 255.255.255.0
+      gateway 10.1.1.254
+      dns-nameservers 10.1.1.254
+      	pre-up ip link add $IFACE link eth0 type macvlan mode bridge
+      	post-down ip link del $IFACE link eth0 type macvlan mode bridge
+      ```
+   
+      或
+   
+      ```
+      auto eth0
+      iface eth0 inet manual
+   
+      auto macvlan
+      iface macvlan inet manual
+      	#pre-up ip monitor link dev eth0 | grep -q 'state UP'
+      	pre-up while ! ip link show eth0 | grep -q 'state UP'; do echo "waiting for eth0 is ready"; sleep 2; done
+      	pre-up while ! ip route show | grep -q '^default'; do echo "waiting eth0 got required rules"; sleep 2; done
+      	pre-up while ! ip route show | grep -q '10.1.1.0/24 dev eth0'; do echo "waiting eth0 got required rules"; sleep 2; done
+      	pre-up ip link add $IFACE link eth0 type macvlan mode bridge
+      	pre-up ip addr add 10.1.1.250/24 brd + dev $IFACE
+      	up ip link set $IFACE up
+      	#up udevadm trigger
+      	post-up ip route del default
+      	post-up ip route del 10.1.1.0/24 dev eth0
+      	post-up ip route add default via 10.1.1.254 dev $IFACE
+      	post-down ip link del dev $IFACE
+      	down ifdown eth0
+      	down ifup eth0
+      ```
+   
+      修改完后重启网络  `systemctl restart networking` 或者重启系统查看效果。
 
 
 
