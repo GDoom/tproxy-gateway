@@ -347,6 +347,10 @@ echo "nameserver 10.1.1.1" > /etc/resolv.conf # 设置静态dns服务器
 
       `nmcli connection add type macvlan dev eth0 mode bridge ifname mac30 ipv4.route-metric 10 ipv6.route-metric 10 autoconnect yes save yes`
 
+      如果想自定义 ip 及网关，可执行：
+
+      `nmcli connection add type macvlan dev eth0 mode bridge ifname mac30 ipv4.route-metric 10 ipv6.route-metric 10 ipv4.method manual ip4 10.1.1.250/24 gw4 10.1.1.254 autoconnect yes save yes`
+
       注意：需使用更低的 `metric` 来提高 `default` 路由的优先级
 
    * 宿主机（Debian）修改网络配置：`vi /etc/network/interface`
