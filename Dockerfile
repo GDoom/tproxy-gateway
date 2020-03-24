@@ -7,7 +7,7 @@ RUN	set -eux; \
 	sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
 	sed -i 's/uk.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
 	apk --no-cache --no-progress upgrade; \
-	apk --no-cache --no-progress add perl curl bash gawk iptables ip6tables pcre openssl dnsmasq ipset iproute2 tzdata; \
+	apk --no-cache --no-progress add perl curl bash gawk iptables ip6tables pcre openssl dnsmasq ipset iproute2 tzdata jq; \
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime; \
 	echo $TZ > /etc/timezone
 
@@ -16,7 +16,7 @@ RUN set -eux; \
 	mkdir -p /v2ray; \
 	cd /v2ray; \
 	tag_url="https://api.github.com/repos/v2ray/v2ray-core/releases/latest"; \
-        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep '"tag_name":' | cut -d'"' -f4`; \
+        new_ver=`curl -s ${tag_url} --connect-timeout 10| jq -r .tag_name`; \
         new_ver="v${new_ver##*v}"; \
 	wget https://github.com/v2ray/v2ray-core/releases/download/${new_ver}/v2ray-linux-64.zip; \
 	unzip v2ray-linux-64.zip; \
