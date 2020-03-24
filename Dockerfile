@@ -16,8 +16,8 @@ RUN set -eux; \
 	mkdir -p /v2ray; \
 	cd /v2ray; \
 	tag_url="https://api.github.com/repos/v2ray/v2ray-core/releases/latest"; \
-	new_ver=`curl -s ${tag_url} --connect-timeout 10| grep 'tag_name' | cut -d\" -f4`; \
-	new_ver="v${new_ver##*v}"; \
+        new_ver=`curl -s ${tag_url} --connect-timeout 10| grep '"tag_name":' | cut -d'"' -f4`; \
+        new_ver="v${new_ver##*v}"; \
 	wget https://github.com/v2ray/v2ray-core/releases/download/${new_ver}/v2ray-linux-64.zip; \
 	unzip v2ray-linux-64.zip; \
 	rm config.json v2ray-linux-64.zip; \
