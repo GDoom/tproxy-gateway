@@ -9,7 +9,7 @@ RUN	set -eux; \
 	sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
 	sed -i 's/uk.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
 	apk --no-cache --no-progress upgrade; \
-	apk --no-cache --no-progress add perl curl bash gawk iptables ip6tables pcre openssl dnsmasq ipset iproute2 tzdata; \
+	apk --no-cache --no-progress add perl curl bash gawk iptables ip6tables pcre openssl dnsmasq ipset iproute2 tzdata jq; \
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime; \
 	echo $TZ > /etc/timezone
 
